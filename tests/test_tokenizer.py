@@ -9,8 +9,25 @@ import string
 from latex2mathml.tokenizer import tokenize
 
 
+def test_leteral_expression():
+    latex_expression = 'ax+bx = (a+b)x'
+    assert ['a', 'x', '+', 'b', 'x', '=', 
+            '(', 'a', '+', 'b', ')', 'x'] == list(tokenize(latex_expression))
+
+
+def test_single_backslash1():
+    assert ['\\'] == list(tokenize('\\'))
+
+def test_double_backslash1():
+    assert [r'\\'] == list(tokenize(r'\\'))
+
 def test_single_backslash():
     assert ['\\'] == list(tokenize('\\'))
+
+def test_spaces():
+    spaces =r'a\, b\; c\quad d \qquad e'
+    assert ['a', r'\,', 'b', r'\;', 'c', 
+            r'\quad', 'd', r'\qquad', 'e'] == list(tokenize(spaces))
 
 
 def test_alphabets():
@@ -34,6 +51,11 @@ def test_double_backslash_after_number():
 def test_numbers_with_decimals():
     decimal = '12.56'
     assert [decimal] == list(tokenize(decimal))
+
+
+def test_numbers_with_comma():
+    decimal = '12,56'
+    assert ['12', ',', '56'] == list(tokenize(decimal))
 
 
 def test_incomplete_decimal():
@@ -92,8 +114,8 @@ def test_matrix_with_negative_sign():
 
 
 def test_simple_array():
-    assert [r'\begin{array}', '{', 'c', 'c', '}', '1', '&', '2', r'\\', '3', '&', '4', r'\end{array}'] == \
-           list(tokenize(r'\begin{array}{cc} 1 & 2 \\ 3 & 4 \end{array}'''))
+    assert [r'\begin{array}', '{', 'c', 'c', '}', '15', '&', '2', r'\\', '3', '&', '4', r'\end{array}'] == \
+           list(tokenize(r'\begin{array}{cc} 15 & 2 \\ 3 & 4 \end{array}'''))
 
 
 def test_subscript():
@@ -128,3 +150,10 @@ def test_issue_55():
     expected = [r'\begin{array}', '{', 'r', 'c', 'l', '}', 'A', 'B', 'C', '&', '=', '&', 'a', r'\\', 'A', '&', '=', '&',
                 'a', 'b', 'c', r'\end{array}']
     assert expected == list(tokenize(latex))
+
+def test_text():
+    latex = r'\text{if} a=b \text{then} b = a'
+    expected = [r'\text', 'if', 'a', '=', 'b',
+                r'\text', 'then', 'b', '=', 'a']
+    assert expected == list(tokenize(latex))
+    

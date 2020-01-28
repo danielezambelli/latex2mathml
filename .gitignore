@@ -1,0 +1,18 @@
+# use glob syntax.
+syntax: glob
+
+*~
+*.backup
+*.aux
+*.log
+*.gnuplot
+*.table
+*.toc
+*.zip
+*.pdf
+*.old
+
+_ignore/*
+_old/*
+.spyproject
+__pycache__

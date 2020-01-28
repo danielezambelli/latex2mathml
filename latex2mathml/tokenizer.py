@@ -5,6 +5,7 @@
 # __maintainer__ = "Ronie Martinez"
 # __email__ = "ronmarti18@gmail.com"
 
+'''
 
 def tokenize(data):
     iterable = iter(data)
@@ -93,3 +94,115 @@ def tokenize(data):
             break
     if len(buffer):
         yield buffer
+'''
+
+OPERATORS = "+-*/=()[]_^{}&,"
+NO_INCREMENT = 0
+INCREMENT = 1
+
+def tokenize(expression_string):
+    """Tokenize expression_string."""
+    def s_ini():
+        """Initial status."""
+        if char.isspace():
+            yield None, s_ini, INCREMENT
+        else:
+            buffer.append(char)
+            if char.isalpha() or char in OPERATORS:
+                yield buffer, s_ini, INCREMENT
+            if char == '\\':
+                yield  None, s_backslash, INCREMENT
+            if char.isdigit() or char in ".,":
+                yield  None, s_integer, INCREMENT
+            else:
+                print(f'---> {char}')
+
+    def s_backslash():
+        """Back slash status."""
+        buffer.append(char)
+        if char in r'\,;':
+            yield buffer, s_ini, INCREMENT
+        else:
+            yield None, s_command, INCREMENT
+
+    def s_command():
+        """Command status."""
+        if char.isalpha():
+            buffer.append(char)
+            yield  None, s_command, INCREMENT
+        else:
+            if ''.join(buffer) in (r"\begin", r"\end",
+                                   r"\mathbb"): # Is not a good thingth ;-)
+                buffer.append(char)
+                yield  None, s_beginend, INCREMENT
+            elif ''.join(buffer) in (r"\text"):
+                yield  buffer, s_text, INCREMENT
+            else:
+                yield buffer, s_ini, NO_INCREMENT
+
+    def s_integer():
+        """Command number."""
+        if char.isdigit():
+            buffer.append(char)
+            yield  None, s_integer, INCREMENT
+        elif char in ".":
+            buffer.append(char)
+            yield None, s_float, INCREMENT
+        else:
+            yield buffer, s_ini, NO_INCREMENT
+
+    def s_float():
+        """Command number."""
+        if char.isdigit():
+            buffer.append(char)
+            yield  None, s_decimal, INCREMENT
+        else:
+            buffer0, buffer1 = buffer[:-1], buffer[-1:]
+            yield buffer0, s_float, NO_INCREMENT
+            yield buffer1, s_ini, NO_INCREMENT
+
+    def s_decimal():
+        """Command number."""
+        if char.isdigit():
+            buffer.append(char)
+            yield  None, s_decimal, INCREMENT
+        elif char in ".":
+            buffer.append(char)
+            yield buffer, s_float, INCREMENT
+        else:
+            yield buffer, s_ini, NO_INCREMENT
+
+    def s_beginend():
+        """Begin or end."""
+        buffer.append(char)
+        if char == "}":
+            yield buffer, s_ini, INCREMENT
+        else:
+            yield None, s_beginend, INCREMENT
+
+    def s_text():
+        """text."""
+        if char == "}":
+            yield buffer, s_ini, INCREMENT
+        else:
+            buffer.append(char)
+            yield None, s_text, INCREMENT
+
+
+    buffer = []
+    status = s_ini
+    iterable = iter(expression_string)
+    is_next = INCREMENT
+    while True:
+        try:
+            if is_next == INCREMENT:
+                char = next(iterable)
+            for result, new_status, is_next in status():
+                if result:
+                    yield ''.join(result)
+                    buffer = []
+            status = new_status
+        except StopIteration:
+            break
+    if buffer:
+        yield ''.join(buffer)

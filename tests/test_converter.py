@@ -282,10 +282,10 @@ def test_null_delimiter(math_and_row):
 
 def test_issue_33(math_and_row):
     latex = r'''\begin{bmatrix}
-     a_{1,1} & a_{1,2} & \cdots & a_{1,n} \\
-     a_{2,1} & a_{2,2} & \cdots & a_{2,n} \\
+     a_{1, 1} & a_{1, 2} & \cdots & a_{1, n} \\
+     a_{2, 1} & a_{2, 2} & \cdots & a_{2, n} \\
      \vdots  & \vdots  & \ddots & \vdots  \\
-     a_{m,1} & a_{m,2} & \cdots & a_{m,n}
+     a_{m, 1} & a_{m, 2} & \cdots & a_{m, n}
     \end{bmatrix}'''
     math, row = math_and_row
     mo = eTree.SubElement(row, 'mo')

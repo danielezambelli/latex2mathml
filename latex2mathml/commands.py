@@ -32,6 +32,7 @@ COMMANDS = {
     r'\overline': (1, 'mover', {}),
     r'\bar': (1, 'mover', {}),
     r'\underline': (1, 'munder', {}),
+    r'\text': (1, 'mtext', {}),
 }
 
 for space in SPACES:
